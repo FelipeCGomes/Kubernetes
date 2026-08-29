@@ -1,0 +1,41 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: dio-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: Senha123
+      MYSQL_DATABASE: meubanco
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - dio-network
+
+  backend:
+    build: ./backend
+    container_name: dio-backend
+    environment:
+      DB_HOST: mysql
+      DB_USER: root
+      DB_PASSWORD: Senha123
+      DB_NAME: meubanco
+    depends_on:
+      - mysql
+    networks:
+      - dio-network
+
+  frontend:
+    build: ./frontend
+    container_name: dio-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    networks:
+      - dio-network
+
+volumes:
+  mysql_data:
+
+networks:
+  dio-network:
